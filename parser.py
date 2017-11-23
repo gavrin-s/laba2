@@ -12,5 +12,8 @@ def get_email(url, headers):
 
     return result
 
+def get_urls(domain, depth=5):
+    pass
+
 if __name__ == "__main__":
     print(get_email('https://www.mosigra.ru/', headers=headers))
