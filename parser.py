@@ -12,7 +12,7 @@ def get_email(url, headers):
 
     return result
 
-def get_urls(domain, depth=5):
+def get_urls(domain, depth=5, n=5):
     pass
 
 if __name__ == "__main__":
