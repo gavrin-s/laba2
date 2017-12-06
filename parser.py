@@ -1,7 +1,6 @@
 import requests
 import re
 from urllib.parse import urlparse, urljoin
-from collections import deque
 from bs4 import BeautifulSoup
 
 
@@ -10,14 +9,25 @@ headers = {'user-agent': "Mozilla/5.0 (Windows NT 6.3; Win64; x64)"
 
 
 def get_email(url, headers=None):
+    """
+    :param url: url
+    :param headers: headers for requests
+    :return: list of emails
+    """
     response = requests.get(url, headers=headers)
-
     result = re.findall(pattern=r'\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6}', string=response.text)
-
-    return set(result)
+    return list(result)
 
 
 def get_urls(url, netloc, urls=set(), headers=None):
+    """
+    :param url: url
+    :param netloc: domain name site
+    :param urls: set of urls was collected
+    :param headers: headers for requests
+    :return: list of urls
+    """
+    # If count of url > 100 break
     if len(urls) > 100:
         return None
 
@@ -27,13 +37,15 @@ def get_urls(url, netloc, urls=set(), headers=None):
         return None
 
     links = []
-    dec = []
+
+    dec = [] # list of urls at the url
     soup = BeautifulSoup(response.text, "html.parser")
     for a in soup.find_all('a', href=True):
         links.append(a['href'])
 
     for path in links:
         link = urljoin(url, path)
+        # cleaning url from params, query, fragment and ect.
         parsed = urlparse(link)
         link = '{}://{}{}'.format(parsed.scheme, parsed.netloc, parsed.path)
         if urlparse(link)[1] != netloc:
@@ -50,26 +62,28 @@ def get_urls(url, netloc, urls=set(), headers=None):
     return list(urls)
 
 
-def get_emails(urls, headers=None):
+def parse_emails(urls, headers=None):
+    """
+    :param urls: list of urls
+    :param headers: headers for requests
+    :return: list of emails from all urls
+    """
     emails = set()
 
-    for i, url in enumerate(urls):
-        em = get_email(url)
-        print(i, url, len(em))
+    for url in urls:
+        em = set(get_email(url, headers))
         emails.update(em)
-    print(emails)
 
     return list(emails)
 
 
 if __name__ == "__main__":
-    url = "https://www.mosigra.ru/"
+    url = "http://kdv-group.com/ru/"
     print('Start to get urls')
     urls = get_urls(url, urlparse(url)[1], headers=headers)
     print('end to get urls, readed {} urls'.format(len(urls)) )
     print('start to get emails')
-    emails = get_emails(urls, headers=headers)
+    emails = parse_emails(urls, headers=headers)
     print('end to get emails, readed {} emails'.format(len(emails)))
     print(emails)
-    #get_urls(url, urlparse(url)[1])
-    #print(len(get_email(url, headers=headers)))
+
