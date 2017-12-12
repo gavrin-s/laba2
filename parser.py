@@ -16,7 +16,7 @@ def get_email(url, headers=None):
     """
     response = requests.get(url, headers=headers)
     result = re.findall(pattern=r'\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6}', string=response.text)
-    return list(result)
+    return list(set(result))
 
 
 def get_urls(url, netloc, urls=set(), headers=None):
